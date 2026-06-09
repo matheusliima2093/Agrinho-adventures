@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agrinho Adventures - O Jogo da Agricultura Sustentável</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Menu Principal -->
+        <div id="mainMenu" class="menu">
+            <div class="menu-content">
+                <h1>🌾 Agrinho Adventures</h1>
+                <p class="subtitle">Salve sua fazenda, salve o planeta!</p>
+                
+                <div class="menu-buttons">
+                    <button id="playBtn" class="btn btn-primary">Jogar</button>
+                    <button id="instructionsBtn" class="btn btn-secondary">Instruções</button>
+                    <button id="settingsBtn" class="btn btn-secondary">Configurações</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instruções -->
+        <div id="instructionsMenu" class="menu hidden">
+            <div class="menu-content">
+                <h2>Como Jogar</h2>
+                <div class="instructions-text">
+                    <h3>🎮 Controles:</h3>
+                    <ul>
+                        <li><strong>Movimento:</strong> Setas ou WASD</li>
+                        <li><strong>Atacar:</strong> Clique do mouse ou Espaço</li>
+                        <li><strong>Pausa:</strong> P ou Esc</li>
+                    </ul>
+                    
+                    <h3>🎯 Objetivo:</h3>
+                    <ul>
+                        <li>Elimine todos os insetos pragas</li>
+                        <li>Colete sementes boas (verdes)</li>
+                        <li>Evite sementes com agrotóxicos (vermelhas)</li>
+                        <li>Derrote o chefão para avançar</li>
+                    </ul>
+                    
+                    <h3>⭐ Dicas:</h3>
+                    <ul>
+                        <li>Sua saúde regenera lentamente com o tempo</li>
+                        <li>Sementes verdes aumentam sua defesa</li>
+                        <li>Evite ao máximo sementes vermelhas</li>
+                        <li>Chefões são mais fortes e lentos</li>
+                    </ul>
+                </div>
+                
+                <button id="backBtn" class="btn btn-primary">Voltar</button>
+            </div>
+        </div>
+
+        <!-- Jogo -->
+        <div id="gameScreen" class="hidden">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <div id="gameHUD">
+                <div class="hud-left">
+                    <div class="stat">
+                        <span>❤️ Saúde:</span>
+                        <div class="health-bar">
+                            <div id="healthFill" class="health-fill"></div>
+                        </div>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="stat">
+                        <span>⚔️ Defesa:</span>
+                        <div id="defenseBar" class="defense-bar"></div>
+                        <span id="defenseText">0</span>
+                    </div>
+                </div>
+                
+                <div class="hud-center">
+                    <div id="levelInfo">Nível 1</div>
+                    <div id="waveInfo">Onda 1</div>
+                </div>
+                
+                <div class="hud-right">
+                    <div class="stat">
+                        <span>⭐ Pontos:</span>
+                        <span id="scoreText">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>🐛 Inimigos:</span>
+                        <span id="enemyCountText">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="pauseMenu" class="menu hidden">
+                <div class="menu-content">
+                    <h2>PAUSA</h2>
+                    <button id="resumeBtn" class="btn btn-primary">Continuar</button>
+                    <button id="restartBtn" class="btn btn-secondary">Reiniciar</button>
+                    <button id="menuBtn" class="btn btn-secondary">Menu Principal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over -->
+        <div id="gameOverScreen" class="menu hidden">
+            <div class="menu-content">
+                <h2 id="gameOverTitle">Game Over</h2>
+                <p id="gameOverMessage"></p>
+                <div class="stats-display">
+                    <p>Pontuação: <strong id="finalScore">0</strong></p>
+                    <p>Nível: <strong id="finalLevel">1</strong></p>
+                    <p>Inimigos Derrotados: <strong id="finalEnemies">0</strong></p>
+                </div>
+                <button id="restartGameBtn" class="btn btn-primary">Jogar Novamente</button>
+                <button id="menuGameOverBtn" class="btn btn-secondary">Menu Principal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/items.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
