@@ -1,150 +1,132 @@
 class Player {
-    constructor(x, y, config) {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.vx = 0;
-        this.vy = 0;
-        this.config = config;
+        this.width = 32;
+        this.height = 48;
+        this.velocityX = 0;
+        this.velocityY = 0;
+        this.speed = 5;
+        this.jumpPower = 12;
+        this.isJumping = false;
+        this.isFacingRight = true;
         
-        this.health = config.PLAYER_HEALTH;
-        this.defense = 0;
-        this.maxDefense = 20;
-        this.size = config.PLAYER_SIZE;
-        this.speed = config.PLAYER_SPEED;
-        this.damage = config.PLAYER_DAMAGE;
-        
-        this.isAttacking = false;
-        this.attackCooldown = 0;
-        this.attackDirection = 0;
-        
-        this.keys = {};
+        // Coleta
+        this.seeds = 0;
+        this.water = 0;
+        this.lives = 3;
+        this.invulnerable = false;
+        this.invulnerableTime = 0;
     }
     
-    handleKeyDown(key) {
-        this.keys[key.toLowerCase()] = true;
-    }
-    
-    handleKeyUp(key) {
-        this.keys[key.toLowerCase()] = false;
-    }
-    
-    update(canvasWidth, canvasHeight) {
-        this.vx = 0;
-        this.vy = 0;
+    update(input, platforms) {
+        // Movimento horizontal
+        this.velocityX = 0;
+        if (input.left) this.velocityX = -this.speed;
+        if (input.right) this.velocityX = this.speed;
+        if (this.velocityX !== 0) this.isFacingRight = this.velocityX > 0;
         
-        if (this.keys['arrowup'] || this.keys['w']) this.vy = -this.speed;
-        if (this.keys['arrowdown'] || this.keys['s']) this.vy = this.speed;
-        if (this.keys['arrowleft'] || this.keys['a']) this.vx = -this.speed;
-        if (this.keys['arrowright'] || this.keys['d']) this.vx = this.speed;
-        if (this.keys[' ']) this.attack(this.x + Math.cos(this.attackDirection) * 50, this.y + Math.sin(this.attackDirection) * 50);
+        // Aplicar velocidade
+        this.x += this.velocityX;
+        this.velocityY += 0.6; // Gravidade
+        this.y += this.velocityY;
         
-        this.x += this.vx;
-        this.y += this.vy;
-        
-        this.x = Math.max(this.size, Math.min(canvasWidth - this.size, this.x));
-        this.y = Math.max(this.size, Math.min(canvasHeight - this.size, this.y));
-        
-        if (this.attackCooldown > 0) {
-            this.attackCooldown--;
-        }
-        
-        this.defense = Math.max(0, this.defense - 0.05);
-        this.health = Math.min(this.config.PLAYER_MAX_HEALTH, this.health + 0.1);
-    }
-    
-    attack(x, y) {
-        if (this.attackCooldown > 0) return;
-        
-        this.isAttacking = true;
-        this.attackCooldown = this.config.ATTACK_COOLDOWN / 16;
-        
-        const dx = x - this.x;
-        const dy = y - this.y;
-        this.attackDirection = Math.atan2(dy, dx);
-        
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 200);
-    }
-    
-    takeDamage(damage) {
-        const actualDamage = Math.max(1, damage - this.defense * 0.5);
-        this.health -= actualDamage;
-    }
-    
-    draw(ctx) {
-        ctx.fillStyle = '#2ecc71';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.strokeStyle = '#27ae60';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        
-        const eyeX = this.x + Math.cos(this.attackDirection) * (this.size * 0.6);
-        const eyeY = this.y + Math.sin(this.attackDirection) * (this.size * 0.6);
-        
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(eyeX, eyeY, 5, 0, Math.PI * 2);
-        ctx.fill();
-        
-        if (this.isAttacking) {
-            ctx.strokeStyle = '#f39c12';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.config.ATTACK_RANGE, 0, Math.PI * 2);
-            ctx.stroke();
+        // Colisão com plataformas
+        let onPlatform = false;
+        for (let platform of platforms) {
+            // Colisão por baixo
+            if (this.velocityY > 0 &&
+                this.y + this.height >= platform.y &&
+                this.y + this.height <= platform.y + platform.height + 10 &&
+                this.x + this.width > platform.x &&
+                this.x < platform.x + platform.width) {
+                this.velocityY = 0;
+                this.y = platform.y - this.height;
+                this.isJumping = false;
+                onPlatform = true;
+            }
             
-            for (let i = 0; i < 8; i++) {
-                const angle = (Math.PI * 2 * i) / 8;
-                const x1 = this.x + Math.cos(angle) * (this.size + 5);
-                const y1 = this.y + Math.sin(angle) * (this.size + 5);
-                const x2 = this.x + Math.cos(angle) * (this.size + 15);
-                const y2 = this.y + Math.sin(angle) * (this.size + 15);
-                
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
+            // Colisão por cima
+            if (this.velocityY < 0 &&
+                this.y <= platform.y + platform.height &&
+                this.y >= platform.y - 10 &&
+                this.x + this.width > platform.x &&
+                this.x < platform.x + platform.width) {
+                this.velocityY = 0;
             }
         }
         
-        if (this.defense > 0) {
-            ctx.strokeStyle = `rgba(243, 156, 18, ${this.defense / this.maxDefense})`;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size + 5 + this.defense, 0, Math.PI * 2);
-            ctx.stroke();
+        // Pulo
+        if (input.jump && !this.isJumping) {
+            this.velocityY = -this.jumpPower;
+            this.isJumping = true;
         }
-    }
-}
-
-class Particle {
-    constructor(x, y, angle, color) {
-        this.x = x;
-        this.y = y;
-        this.vx = Math.cos(angle) * 3;
-        this.vy = Math.sin(angle) * 3;
-        this.color = color;
-        this.life = 30;
-        this.size = Math.random() * 4 + 2;
-    }
-    
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.1;
-        this.life--;
+        
+        // Invulnerabilidade
+        if (this.invulnerable) {
+            this.invulnerableTime--;
+            if (this.invulnerableTime <= 0) {
+                this.invulnerable = false;
+            }
+        }
     }
     
     draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.life / 30;
+        // Piscar quando invulnerável
+        if (this.invulnerable && Math.floor(this.invulnerableTime / 5) % 2 === 0) return;
+        
+        // Corpo do fazendeiro
+        ctx.fillStyle = '#8B4513'; // Marrom
+        ctx.fillRect(this.x, this.y + 20, this.width, 20);
+        
+        // Cabeça
+        ctx.fillStyle = '#D2691E'; // Cor de pele
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x + this.width / 2, this.y + 12, 10, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1;
+        
+        // Chapéu
+        ctx.fillStyle = '#FFD700'; // Amarelo
+        ctx.fillRect(this.x + 8, this.y - 2, 16, 8);
+        ctx.fillStyle = '#FFA500';
+        ctx.fillRect(this.x + 6, this.y + 4, 20, 3);
+        
+        // Olhos
+        ctx.fillStyle = '#000';
+        ctx.fillRect(this.x + 12, this.y + 8, 3, 3);
+        ctx.fillRect(this.x + 19, this.y + 8, 3, 3);
+        
+        // Pernas
+        ctx.fillStyle = '#2F4F4F'; // Cinza escuro
+        ctx.fillRect(this.x + 10, this.y + 40, 4, 8);
+        ctx.fillRect(this.x + 18, this.y + 40, 4, 8);
+    }
+    
+    takeDamage() {
+        if (!this.invulnerable) {
+            this.lives--;
+            this.invulnerable = true;
+            this.invulnerableTime = 120; // 2 segundos
+        }
+    }
+    
+    addSeeds(amount) {
+        this.seeds += amount;
+    }
+    
+    addWater(amount) {
+        this.water += amount;
+    }
+    
+    useProjectile(type) {
+        if (type === 'seed' && this.seeds > 0) {
+            this.seeds--;
+            return 'seed';
+        }
+        if (type === 'water' && this.water > 0) {
+            this.water--;
+            return 'water';
+        }
+        return null;
     }
 }
