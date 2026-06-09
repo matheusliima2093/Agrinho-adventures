@@ -26,7 +26,6 @@ class Enemy {
     }
     
     update(player, canvasWidth, canvasHeight) {
-        // Chase player
         const dx = player.x - this.x;
         const dy = player.y - this.y;
         const dist = Math.hypot(dx, dy);
@@ -39,13 +38,11 @@ class Enemy {
         this.x += this.vx;
         this.y += this.vy;
         
-        // Boundary
         if (this.x < -this.size) this.x = canvasWidth + this.size;
         if (this.x > canvasWidth + this.size) this.x = -this.size;
         if (this.y < -this.size) this.y = canvasHeight + this.size;
         if (this.y > canvasHeight + this.size) this.y = -this.size;
         
-        // Cooldown
         if (this.attackCooldown > 0) {
             this.attackCooldown--;
         }
@@ -56,18 +53,15 @@ class Enemy {
     }
     
     draw(ctx) {
-        // Body
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Outline
         ctx.strokeStyle = '#c0392b';
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // Eyes
         const eyeSize = 4;
         const eyeOffsetX = this.size * 0.4;
         const eyeOffsetY = -this.size * 0.3;
@@ -80,7 +74,6 @@ class Enemy {
         ctx.arc(this.x + eyeOffsetX, this.y + eyeOffsetY, eyeSize, 0, Math.PI * 2);
         ctx.fill();
         
-        // Pupils
         ctx.fillStyle = '#000';
         ctx.beginPath();
         ctx.arc(this.x - eyeOffsetX, this.y + eyeOffsetY, eyeSize * 0.6, 0, Math.PI * 2);
@@ -89,7 +82,6 @@ class Enemy {
         ctx.arc(this.x + eyeOffsetX, this.y + eyeOffsetY, eyeSize * 0.6, 0, Math.PI * 2);
         ctx.fill();
         
-        // Health bar
         const barWidth = this.size * 2;
         const barHeight = 5;
         const barX = this.x - barWidth / 2;
@@ -106,7 +98,6 @@ class Enemy {
         ctx.lineWidth = 1;
         ctx.strokeRect(barX, barY, barWidth, barHeight);
         
-        // Boss indicator
         if (this.isBoss) {
             ctx.strokeStyle = '#f39c12';
             ctx.lineWidth = 2;

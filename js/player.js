@@ -29,7 +29,6 @@ class Player {
     }
     
     update(canvasWidth, canvasHeight) {
-        // Movement
         this.vx = 0;
         this.vy = 0;
         
@@ -42,19 +41,14 @@ class Player {
         this.x += this.vx;
         this.y += this.vy;
         
-        // Boundary
         this.x = Math.max(this.size, Math.min(canvasWidth - this.size, this.x));
         this.y = Math.max(this.size, Math.min(canvasHeight - this.size, this.y));
         
-        // Cooldown
         if (this.attackCooldown > 0) {
             this.attackCooldown--;
         }
         
-        // Defense decay
         this.defense = Math.max(0, this.defense - 0.05);
-        
-        // Health regeneration
         this.health = Math.min(this.config.PLAYER_MAX_HEALTH, this.health + 0.1);
     }
     
@@ -62,7 +56,7 @@ class Player {
         if (this.attackCooldown > 0) return;
         
         this.isAttacking = true;
-        this.attackCooldown = this.config.ATTACK_COOLDOWN / 16; // Convert ms to frames
+        this.attackCooldown = this.config.ATTACK_COOLDOWN / 16;
         
         const dx = x - this.x;
         const dy = y - this.y;
@@ -79,18 +73,15 @@ class Player {
     }
     
     draw(ctx) {
-        // Player body
         ctx.fillStyle = '#2ecc71';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Player outline
         ctx.strokeStyle = '#27ae60';
         ctx.lineWidth = 3;
         ctx.stroke();
         
-        // Direction indicator
         const eyeX = this.x + Math.cos(this.attackDirection) * (this.size * 0.6);
         const eyeY = this.y + Math.sin(this.attackDirection) * (this.size * 0.6);
         
@@ -99,7 +90,6 @@ class Player {
         ctx.arc(eyeX, eyeY, 5, 0, Math.PI * 2);
         ctx.fill();
         
-        // Attack indicator
         if (this.isAttacking) {
             ctx.strokeStyle = '#f39c12';
             ctx.lineWidth = 2;
@@ -107,7 +97,6 @@ class Player {
             ctx.arc(this.x, this.y, this.config.ATTACK_RANGE, 0, Math.PI * 2);
             ctx.stroke();
             
-            // Attack rays
             for (let i = 0; i < 8; i++) {
                 const angle = (Math.PI * 2 * i) / 8;
                 const x1 = this.x + Math.cos(angle) * (this.size + 5);
@@ -122,7 +111,6 @@ class Player {
             }
         }
         
-        // Defense aura
         if (this.defense > 0) {
             ctx.strokeStyle = `rgba(243, 156, 18, ${this.defense / this.maxDefense})`;
             ctx.lineWidth = 3;
@@ -147,7 +135,7 @@ class Particle {
     update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy += 0.1; // gravity
+        this.vy += 0.1;
         this.life--;
     }
     
